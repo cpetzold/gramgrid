@@ -1,0 +1,12 @@
+<Title:>
+  Gramgrid
+
+<Body:>
+  <div id="grid">
+    {{#each _images}}<app:image>{{/}}
+  </div>
+
+<image:>
+  <a href="{{this.link}}" target="_blank">
+    <img src="{{this.images.low_resolution.url}}" />
+  </a>
