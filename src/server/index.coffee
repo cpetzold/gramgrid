@@ -1,38 +1,62 @@
 http = require 'http'
 path = require 'path'
-express = require 'express'
-gzippo = require 'gzippo'
 derby = require 'derby'
-app = require '../app'
+express = require 'express'
+authom = require 'authom'
+gzippo = require 'gzippo'
+ms = require 'ms'
+log = require 'logule'
+gramgrid = require '../gramgrid'
+keys = require './keys'
 serverError = require './serverError'
 
-expressApp = express()
-server = module.exports = http.createServer expressApp
+app = express()
+server = module.exports = http.createServer app
 
-derby.use(derby.logPlugin)
+derby.use derby.logPlugin
 
 store = derby.createStore listen: server
 require('./instagram')(store)
 
-ONE_YEAR = 1000 * 60 * 60 * 24 * 365
 root = path.dirname path.dirname __dirname
 publicPath = path.join root, 'public'
 
-expressApp
+app
   .use(express.favicon())
-  .use(gzippo.staticGzip publicPath, maxAge: ONE_YEAR)
+  .use(gzippo.staticGzip publicPath, maxAge: ms '365d')
   .use(express.compress())
   .use(express.bodyParser())
   .use(express.methodOverride())
   .use(express.cookieParser())
   .use(store.sessionMiddleware
-    secret: process.env.SESSION_SECRET || ':o'
-    cookie: {maxAge: ONE_YEAR}
+    secret: process.env.SESSION_SECRET || '53822dc71eee646eb5704137b37215c0'
+    cookie: { maxAge: ms '365d' }
   )
   .use(store.modelMiddleware())
-  .use(app.router())
-  .use(expressApp.router)
+  .use(gramgrid.router())
+  .use(app.router)
   .use(serverError root)
 
-expressApp.all '*', (req) ->
+authom.createServer
+  service: 'instagram'
+  id: keys.instagram.id
+  secret: keys.instagram.secret
+
+authom.on 'auth', (req, res, auth) ->
+  log.line auth, auth.token.replace(/\./g, '_')
+  req.session.user = auth.data.data
+  req.session.user.token = auth.token
+  res.redirect '/'
+
+authom.on 'error', (req, res, data) ->
+  res.redirect 'back'
+
+app.get '/auth/:service', authom.app
+
+app.get '/signout', (req, res, next) ->
+  req.session.user = null
+  res.redirect '/'
+
+app.all '*', (req) ->
   throw "404: #{req.url}"
+

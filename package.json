@@ -7,8 +7,10 @@
     "derby": "*",
     "express": "3.0.0beta4",
     "gzippo": ">=0.1.7",
-    "instagram": "*",
-    "logule": "*"
+    "authom": "*",
+    "instagram": "git://github.com/Swizec/nodestagram.git",
+    "logule": "*",
+    "ms": "*"
   },
   "private": true,
   "devDependencies": {
