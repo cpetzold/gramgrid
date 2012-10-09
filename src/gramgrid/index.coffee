@@ -1,26 +1,33 @@
 derby = require 'derby'
 gg = derby.createApp module
 
-popular = (page, model) ->
-  model.fetch 'media.popular', (e, images) ->
+images = (page, model, path) ->
+  model.fetch path, (e, images) ->
+    if e
+      page.render '404', {}, 404
     model.ref '_images', images
     page.render()
 
-userFeed = (page, model) ->
-  user = model.session.user
-  token = user.token.replace /\./g, '_'
-  console.log token
-  model.fetch "users.self.#{token}", (e, images) ->
-    model.ref '_images', images
-    page.render()
 
 gg.get '/', (page, model) ->
-  if model.session.user
-    userFeed page, model
-  else
-    popular page, model
+  if !model.session.user
+    return page.redirect '/auth/instagram'
 
-gg.get '/popular', popular
+  user = model.session.user
+  token = user.token.replace /\./g, '_'
+  images page, model, "users.self.#{token}.0"
+
+gg.get '/popular', (page, model) ->
+  images page, model, 'media.popular'
+
+gg.get '/:username', (page, model, params) ->
+  if !model.session.user
+    return page.redirect '/auth/instagram'
+    
+  username = params.username
+  user = model.session.user
+  token = user.token.replace /\./g, '_'
+  images page, model, "media.user.#{token}.#{username}.0"
 
 gg.ready (model) ->
   

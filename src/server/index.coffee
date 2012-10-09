@@ -5,10 +5,10 @@ express = require 'express'
 authom = require 'authom'
 gzippo = require 'gzippo'
 ms = require 'ms'
-log = require 'logule'
 gramgrid = require '../gramgrid'
 keys = require './keys'
 serverError = require './serverError'
+log = require('logule').init module
 
 app = express()
 server = module.exports = http.createServer app
@@ -43,10 +43,9 @@ authom.createServer
   secret: keys.instagram.secret
 
 authom.on 'auth', (req, res, auth) ->
-  log.line auth, auth.token.replace(/\./g, '_')
   req.session.user = auth.data.data
   req.session.user.token = auth.token
-  res.redirect '/'
+  res.redirect 'back'
 
 authom.on 'error', (req, res, data) ->
   res.redirect 'back'
