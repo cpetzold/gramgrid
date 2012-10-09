@@ -11,23 +11,40 @@ body
   left: 0
   width: 100%
 
-  img
+  .image
     width: 20%
     display: inline-block
+    position: relative
+
+    &:hover
+      .image-avatar
+        opacity: 1
+
+  .image-img
+    width: 100%
+
+  .image-avatar
+    position: absolute
+    top: 5px
+    right: 5px
+    width: 32px
+    border: 1px solid #000
+    opacity: 0
+    transition: opacity 0.2s
 
 
 @media screen and (max-width: 1200px)
-  #grid img
+  #grid .image
     width: 25%
 
 @media screen and (max-width: 800px)
-  #grid img
+  #grid .image
     width: 33.33%
 
 @media screen and (max-width: 500px)
-  #grid img
+  #grid .image
     width: 50%
 
-@media screen and (max-width: 300px)
-  #grid img
+@media screen and (max-width: 400px)
+  #grid .image
     width: 100%

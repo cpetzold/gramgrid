@@ -5,6 +5,8 @@ images = (page, model, path) ->
   model.fetch path, (e, images) ->
     return page.redirect '/' if e
     model.ref '_images', images
+    imgs = model.get '_images'
+    # console.log imgs
     page.render()
 
 gg.get '/', (page, model) ->
