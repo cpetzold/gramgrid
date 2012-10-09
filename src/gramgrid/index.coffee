@@ -3,11 +3,9 @@ gg = derby.createApp module
 
 images = (page, model, path) ->
   model.fetch path, (e, images) ->
-    if e
-      page.render '404', {}, 404
+    return page.redirect '/' if e
     model.ref '_images', images
     page.render()
-
 
 gg.get '/', (page, model) ->
   if !model.session.user
@@ -23,7 +21,7 @@ gg.get '/popular', (page, model) ->
 gg.get '/:username', (page, model, params) ->
   if !model.session.user
     return page.redirect '/auth/instagram'
-    
+
   username = params.username
   user = model.session.user
   token = user.token.replace /\./g, '_'

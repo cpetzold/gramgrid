@@ -17,8 +17,8 @@ module.exports = (store) ->
   store.route 'get', 'media.user.*.*.*', (token, username, page, done) ->
     client.users.search username, (users, e) ->
       user = users[0]
-      if user?.username is not username
-        return done
+      if !user or user.username != username
+        return done 'Not found'
       token = token.replace /_/g, '.'
       client.users.media user.id, { access_token: token, count: 100 }, (media, e) ->
         done e, media
